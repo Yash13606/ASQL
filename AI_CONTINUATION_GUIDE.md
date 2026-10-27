@@ -23,7 +23,7 @@ Finish the Advanced SQL Urban Mobility project as a real local MySQL-backed webs
 - `node --test --test-isolation=none tests/traffic-core.test.mjs tests/traffic-queries.test.mjs` passed 10 tests. Node syntax checks passed for the backend `.mjs` scripts; `git diff --check` passed.
 - A previous `npm install` stopped with registry `ECONNRESET`. Dependencies were subsequently trimmed to what the active application imports. Re-run installation on this computer.
 - **Not yet proven:** MySQL schema creation/import, live API responses, saved queries against MySQL, the production build, TypeScript check, lint, or browser behavior. Do these before saying the website is fully working or assigning a completion percentage.
-- The ZIP intentionally excludes `.env`, the dataset CSV, `node_modules`, `.next`, and Git metadata. Obtain the dataset separately and configure this computer.
+- The ZIP includes the local Git history and `feat/bangalore-mysql` branch, but excludes `.env`, the dataset CSV, `node_modules`, and `.next`. Obtain the dataset separately and configure this computer.
 - MySQL Workbench is the preferred visual database client. The Next.js server connects directly to the same MySQL Server 8 service using `mysql2`.
 
 ## Setup on a new Windows laptop
@@ -96,7 +96,7 @@ Open `http://127.0.0.1:3000` and `http://127.0.0.1:3000/api/health`. Record comm
 
 ## Repository and Git handoff
 
-Project remote: `https://github.com/Yash13606/ASQL`. Before pushing, inspect `git status`, confirm `.env` and the CSV are ignored, and compare the current remote branch so an existing teammate's commits are preserved. Use a separate branch if the repository has moved since this snapshot. Do not force-push. No deployment or traffic-simulator work is part of this handoff.
+Project remote: `https://github.com/Yash13606/ASQL`. This ZIP contains local commit `2b818ad` on `feat/bangalore-mysql`, based on starter commit `af81be7`. At handoff time the GitHub `main` branch still points at `af81be7`; the new commit could not be published from the preparing environment (GitHub connector denied writes and its shell proxy could not reach GitHub). On the new laptop, inspect `git status`, then `git fetch origin` and compare `origin/main` with this branch. If the remote is unchanged and this branch is not already on GitHub, push it as a branch with `git push -u origin feat/bangalore-mysql` and open a PR; otherwise make a fresh branch from the current remote and apply the project commit carefully. Confirm `.env` and the CSV are ignored. Do not force-push. No deployment or traffic-simulator work is part of this handoff.
 
 ## Instructions for the next AI assistant
 
