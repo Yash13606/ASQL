@@ -69,3 +69,12 @@ AGENTS.md
 *.db-wal
 *.sqlite
 *.sqlite3
+
+# Downloaded source data and local verification artifacts
+/data/raw/*
+!/data/raw/.gitkeep
+/data/processed/
+/data/cache/
+/artifacts/
+/tmp/
+/.venv/
