@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./simulation.css";
 
 export const metadata: Metadata = {
   title: "ASQL | Urban Mobility Traffic Analytics",
-  description: "MySQL-backed analysis of the Bangalore traffic dataset with filtered analytics, advanced SQL, views, and index plans.",
+  description: "MySQL-backed analysis of the Bangalore traffic dataset and a separate synthetic junction simulation with fixed and adaptive signal comparisons.",
   keywords: ["Advanced SQL", "Urban Mobility", "Traffic Analysis", "MySQL", "Bangalore Traffic Dataset"],
   authors: [{ name: "Urban Mobility Research" }],
 };

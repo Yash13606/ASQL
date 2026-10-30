@@ -1,8 +1,8 @@
 # ASQL — 75% review milestone handoff
 
-Updated: 2026-10-27
+Updated: 2026-10-30
 
-This is a practical project checkpoint, not an official grading formula. Match it against the instructor's rubric before presenting. The project scope is a MySQL-backed analysis of the supplied Bangalore traffic dataset. Traffic simulation is outside this milestone.
+This is a practical project checkpoint, not an official grading formula. Match it against the instructor's rubric before presenting. The project now has two distinct parts: MySQL-backed analysis of the supplied historical Bangalore traffic dataset and a synthetic junction simulation stored in separate MySQL tables.
 
 ## Implemented in the repository
 
@@ -16,6 +16,10 @@ This is a practical project checkpoint, not an official grading formula. Match i
 - [x] CSV output escapes values and prefixes formula-like cell contents.
 - [x] Parser/filter/SQL compilation tests are included; `npm run verify:database` checks the connected import, foreign-key coverage, views, and saved queries.
 - [x] Setup, limitations, and presentation flow are documented in `README.md`.
+- [x] A four-way junction simulation is implemented with fixed and adaptive signal control, identical seeded demand for each comparison, MySQL run/sample/action tables, and a live dashboard. Its model and limits are documented in `docs/SIMULATION_GUIDE.md`.
+- [x] Overview has a separate card for the latest completed synthetic comparison; it opens the saved pair on the Live Simulation screen. Active runs poll until a terminal state, with failure text shown in the UI.
+- [x] Pure Node tests check seeded demand, arrival conservation, control comparisons, input validation, and transactional sample writes. The current source suite passed 18 tests; these do not prove the MySQL-backed screen runs on this machine.
+- [x] A read-only `npm run verify:simulation` command checks a finished pair's demand, totals, sampled steps, lane rows, and actions against the deterministic model.
 
 ## Still needs local evidence before calling the checkpoint demonstrated
 
@@ -26,6 +30,10 @@ The code is present, but these results depend on Yash's local setup and must be 
 - [ ] Run `npm run data:import`; check actual row counts, rejected rows, date range, checksum, and importer log.
 - [ ] Run `npm test`, `npm run typecheck`, `npm run lint`, and `npm run build`; record pass/fail output and address any failures.
 - [ ] Run `npm run verify:database`. Confirm saved SQL executes in MySQL and stored daily summaries match view results.
+- [ ] Open Live Simulation and run east-west surge, north-south surge, and balanced scenarios with the same seed. Verify both runs complete, the queue chart and action timeline move, and `simulation_run`, `simulation_step`, `simulation_lane_sample`, and `simulation_action` contain the expected rows.
+- [ ] Compare the fixed/adaptive UI metrics with SQL in Workbench. Confirm matching demand fingerprints and arrival counts. Record that the adaptive mode can do worse on balanced demand.
+- [ ] Run `npm run verify:simulation` after a completed pair and save its JSON report. Open Overview and confirm the latest synthetic experiment card links to that exact pair.
+- [ ] Check Stop, reload/history, and worker failure display. Inspect `data/processed/simulation-worker.log` locally if a run fails.
 - [ ] Start the site and verify filter changes affect results, SQL lab results come from MySQL, CSV opens correctly, and an unavailable database shows a useful error.
 - [ ] Capture Workbench table/view evidence and a few browser screenshots for the review.
 - [ ] Compare this checklist with the instructor's rubric and adjust the completion claim accordingly.
@@ -40,6 +48,7 @@ The code is present, but these results depend on Yash's local setup and must be 
 6. Show the ordinary daily view and the refreshable summary table, run the refresh, and show the value comparison.
 7. Run the index benchmark, explain `EXPLAIN` and the measured boundaries, and report what this machine returned. Do not claim the index is faster unless results support it.
 8. Export one filtered CSV and explain that it is generated from actual SQL output.
+9. Run the synthetic junction comparison. Show both controllers received the same seeded arrivals, then use Workbench to explain the measured queue, waiting, throughput, and signal decisions. State that the result applies to this model, not live Bangalore roads.
 
 ## Boundaries to state clearly
 
@@ -50,3 +59,4 @@ The code is present, but these results depend on Yash's local setup and must be 
 - MySQL ordinary views are not materialized views. The project uses a regular table with an explicit refresh procedure.
 - SQL timings vary by machine, cache state, server settings, and filtered row count. The app measures local driver round trips and also shows server execution plans.
 - A completed checklist in source is not proof that the local database and website were run. Keep the evidence boxes above unchecked until each run is observed.
+- The simulation generates traffic from scenario rates. It is not a calibrated SUMO model, an external live feed, or a traffic signal controller connected to real hardware.

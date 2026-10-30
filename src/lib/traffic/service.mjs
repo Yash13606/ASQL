@@ -32,7 +32,7 @@ export async function runSavedQuery(id,filters={}){
   const rows=await query(definition.sql,definition.params);const elapsed=performance.now()-started;
   return {id,title:definition.title,sql:definition.sql,parameters:definition.params,why:definition.why,features:definition.features,columns:Object.keys(rows[0]||{}),rows,row_count:rows.length,round_trip_ms:Number(elapsed.toFixed(3)),measurement:'Database driver round-trip including row retrieval; not server CPU time.',import_id:source.import_id};
 }
-const TABLES=['dataset_import','area','road','road_segment','sensor','traffic_observation','vehicle','trip','app_state','road_daily_summary'];
+const TABLES=['dataset_import','area','road','road_segment','sensor','traffic_observation','vehicle','trip','app_state','road_daily_summary','simulation_run','simulation_step','simulation_lane_sample','simulation_action'];
 export async function schema(){
   const tables=await query(`SELECT TABLE_NAME AS table_name,TABLE_TYPE AS table_type FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() ORDER BY TABLE_NAME`);
   const columns=await query('SELECT TABLE_NAME AS table_name,COLUMN_NAME AS column_name,COLUMN_TYPE AS column_type,IS_NULLABLE AS nullable,COLUMN_KEY AS column_key FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() ORDER BY TABLE_NAME,ORDINAL_POSITION');

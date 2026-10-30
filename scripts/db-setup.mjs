@@ -6,7 +6,7 @@ const db=await mysql.createConnection(options);
 try {
   await db.query(`CREATE DATABASE IF NOT EXISTS \`${name}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs`);
   await db.changeUser({database:name});
-  for(const file of ['001_schema.sql','002_views.sql','003_refresh_summary.sql']){
+  for(const file of ['001_schema.sql','002_views.sql','003_refresh_summary.sql','004_simulation.sql']){
     const text=await readFile(new URL(`../sql/${file}`,import.meta.url),'utf8');
     for(const statement of splitSqlScript(text))await db.query(statement);
     console.log('Applied',file);

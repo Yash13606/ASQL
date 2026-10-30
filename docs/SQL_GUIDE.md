@@ -2,6 +2,8 @@
 
 Use MySQL Workbench connected to the configured `urban_mobility` database. The application runs the same saved queries with an active import ID and bound filter values; the snippets below are study examples that can be adapted for Workbench.
 
+The synthetic junction has separate run, sample, lane, and action tables. Its Workbench examples are in [SIMULATION_GUIDE.md](SIMULATION_GUIDE.md).
+
 ## Check the connected database and loaded tables
 
 ```sql

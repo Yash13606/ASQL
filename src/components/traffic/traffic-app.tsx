@@ -1,15 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Activity, BarChart3, BookOpen, Cable, ChevronRight, CircleHelp, Database, Download, Gauge, LayoutDashboard, LoaderCircle, Map, Menu, RefreshCw, Search, Server, Table2, X } from "lucide-react";
+import { Activity, BarChart3, BookOpen, Cable, ChevronRight, CircleHelp, Database, Download, Gauge, LayoutDashboard, LoaderCircle, Map, Menu, RefreshCw, Search, Server, Table2, TrafficCone, X } from "lucide-react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ComposedChart, Legend, Line, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { SqlBlock } from "@/components/shared/sql-block";
+import { SimulationLab } from "@/components/simulation/simulation-lab";
+import { OverviewSimulationCard } from "@/components/simulation/overview-simulation-card";
 
 type Dict = Record<string, any>;
 type Filters = { area: string; road: string; start: string; end: string; timeBlock: string; congestion: string; weather: string; roadwork: string };
 const EMPTY: Filters = { area:"",road:"",start:"",end:"",timeBlock:"",congestion:"",weather:"",roadwork:"" };
 const NAV = [
   {id:"dashboard",label:"Overview",icon:LayoutDashboard,group:"WORKSPACE"},
+  {id:"simulation",label:"Live simulation",icon:TrafficCone,group:"WORKSPACE"},
   {id:"traffic",label:"Traffic analysis",icon:BarChart3,group:"WORKSPACE"},
   {id:"spatio",label:"Road patterns",icon:Map,group:"WORKSPACE"},
   {id:"explorer",label:"Schema explorer",icon:Database,group:"DATABASE"},
@@ -33,26 +36,27 @@ function ChartFrame({children}:{children:React.ReactNode}){return <div className
 function Stamp({children}:{children:React.ReactNode}){return <span className="stamp">{children}</span>}
 
 export function TrafficApp(){
-  const [page,setPage]=useState("dashboard"),[boot,setBoot]=useState<Dict|null>(null),[bootError,setBootError]=useState(""),[draft,setDraft]=useState<Filters>(EMPTY),[applied,setApplied]=useState<Filters>(EMPTY),[analytics,setAnalytics]=useState<Dict|null>(null),[analyticsError,setAnalyticsError]=useState(""),[busy,setBusy]=useState(false),[mobile,setMobile]=useState(false);
+  const [page,setPage]=useState("dashboard"),[simulationGroup,setSimulationGroup]=useState(""),[boot,setBoot]=useState<Dict|null>(null),[bootError,setBootError]=useState(""),[draft,setDraft]=useState<Filters>(EMPTY),[applied,setApplied]=useState<Filters>(EMPTY),[analytics,setAnalytics]=useState<Dict|null>(null),[analyticsError,setAnalyticsError]=useState(""),[busy,setBusy]=useState(false),[mobile,setMobile]=useState(false);
   const loadBoot=useCallback(async()=>{setBootError("");try{setBoot(await getApi("bootstrap"));}catch(e){setBootError((e as Error).message)}},[]);
   useEffect(()=>{void loadBoot()},[loadBoot]);
   useEffect(()=>{if(!boot)return;let live=true;setAnalyticsError("");getApi("analytics",applied).then(d=>{if(live)setAnalytics(d)}).catch(e=>{if(live)setAnalyticsError((e as Error).message)});return()=>{live=false}},[boot,applied]);
   const nav=useMemo(()=>NAV.find(n=>n.id===page)!,[page]);
   const change=(key:keyof Filters,value:string)=>setDraft(old=>({...old,[key]:value,...(key==="area"?{road:""}:{})}));
   const roads:Dict[]=boot?.roads||[];const areaRoads=roads.filter(r=>!draft.area||r.area===draft.area);
-  const clickNav=(id:string)=>{setPage(id);setMobile(false)};
+  const clickNav=(id:string)=>{if(id==="simulation")setSimulationGroup("");setPage(id);setMobile(false)};
   if(bootError&&!boot)return <div className="setup-screen"><div className="setup-card"><div className="setup-icon"><Database/></div><div className="eyebrow">LOCAL MYSQL CONNECTION</div><h1>Connect your traffic database</h1><p>{bootError}</p><div className="setup-steps"><b>Finish the local setup</b><code>npm run db:setup</code><code>npm run data:import</code><span>Use the same MySQL credentials as your Workbench connection. The imported CSV is read from the configured local path.</span></div><button className="btn primary" onClick={()=>void loadBoot()}><RefreshCw size={15}/> Retry connection</button></div></div>;
   if(!boot)return <div className="loading-screen"><LoaderCircle className="spin"/> Loading MySQL traffic workspace…</div>;
   const src=boot.source||{},q=qs(applied),urlFilters=applied;
   return <div className="app-shell">
-    <aside className={`sidebar ${mobile?"open":""}`}><div className="brand"><div className="brand-mark"><Activity size={21}/></div><div><strong>ASQL</strong><span>URBAN MOBILITY LAB</span></div><button className="mobile-close" onClick={()=>setMobile(false)} aria-label="Close menu"><X size={18}/></button></div><div className="connection"><i/><span>MySQL connected</span><small>{boot.database?.version||"MySQL"}</small></div>{["WORKSPACE","DATABASE","PROJECT"].map(group=><div className="nav-group" key={group}><div className="nav-label">{group}</div>{NAV.filter(n=>n.group===group).map(item=><button key={item.id} className={`nav-item ${page===item.id?"active":""}`} onClick={()=>clickNav(item.id)}><item.icon size={17}/><span>{item.label}</span>{page===item.id&&<ChevronRight size={14} className="nav-arrow"/>}</button>)}</div>)}<div className="sidebar-foot"><span className="foot-dot"/>Dataset-backed workspace<div>Local MySQL · read-only analysis</div></div></aside>
+    <aside className={`sidebar ${mobile?"open":""}`}><div className="brand"><div className="brand-mark"><Activity size={21}/></div><div><strong>ASQL</strong><span>URBAN MOBILITY LAB</span></div><button className="mobile-close" onClick={()=>setMobile(false)} aria-label="Close menu"><X size={18}/></button></div><div className="connection"><i/><span>MySQL connected</span><small>{boot.database?.version||"MySQL"}</small></div>{["WORKSPACE","DATABASE","PROJECT"].map(group=><div className="nav-group" key={group}><div className="nav-label">{group}</div>{NAV.filter(n=>n.group===group).map(item=><button key={item.id} className={`nav-item ${page===item.id?"active":""}`} onClick={()=>clickNav(item.id)}><item.icon size={17}/><span>{item.label}</span>{page===item.id&&<ChevronRight size={14} className="nav-arrow"/>}</button>)}</div>)}<div className="sidebar-foot"><span className="foot-dot"/>Dataset-backed workspace<div>Local MySQL · SQL + simulation</div></div></aside>
     {mobile&&<button aria-label="Close navigation" className="scrim" onClick={()=>setMobile(false)}/>}
     <div className="main-shell"><header className="topbar"><button className="menu-button" onClick={()=>setMobile(true)} aria-label="Open menu"><Menu size={19}/></button><div className="breadcrumbs"><span>Urban mobility</span><b>/</b><strong>{nav.label}</strong></div><div className="top-status"><span><i/>MySQL 8</span><span className="top-database"><Database size={14}/>{boot.database?.database_name}</span></div></header>
       <main className="main-content"><div className="content-width"><div className="page-intro"><div><div className="eyebrow">{nav.group} <span>·</span> BENGALURU, INDIA</div><h1>{pageTitle(page)}</h1><p>{pageSubtitle(page)}</p></div><div className="intro-stamp"><span className="stamp-green"/>LIVE FROM LOCAL MYSQL</div></div>
-        {page!=="dataflow"&&<FilterBar draft={draft} set={change} boot={boot} roads={areaRoads} apply={()=>setApplied({...draft})} reset={()=>{setDraft(EMPTY);setApplied(EMPTY)}} busy={busy}/>}
+        {page!=="dataflow"&&page!=="simulation"&&<FilterBar draft={draft} set={change} boot={boot} roads={areaRoads} apply={()=>setApplied({...draft})} reset={()=>{setDraft(EMPTY);setApplied(EMPTY)}} busy={busy}/>}
         {analyticsError&&<div className="error-banner"><CircleHelp size={17}/><span>{analyticsError}</span><button onClick={()=>{setApplied({...applied})}}>Retry</button></div>}
-        {page!=="dataflow"&&!analytics&&<div className="loading-inline"><LoaderCircle className="spin"/> Querying the active dataset…</div>}
-        {page==="dashboard"&&analytics&&<Dashboard data={analytics} boot={boot} filters={urlFilters}/>}
+        {page!=="dataflow"&&page!=="simulation"&&!analytics&&<div className="loading-inline"><LoaderCircle className="spin"/> Querying the active dataset…</div>}
+        {page==="simulation"&&<SimulationLab initialGroup={simulationGroup}/>}
+        {page==="dashboard"&&analytics&&<><OverviewSimulationCard openSimulation={group=>{setSimulationGroup(group||"");setPage("simulation")}}/><Dashboard data={analytics}/></>}
         {page==="traffic"&&analytics&&<Traffic data={analytics}/>}
         {page==="spatio"&&analytics&&<Spatial data={analytics} boot={boot}/>}
         {page==="explorer"&&<Explorer/>}
@@ -91,4 +95,4 @@ function Reports({filters}:{filters:Filters}){const [type,setType]=useState("roa
 function qpart(f:Filters){const s=qs(f);return s?`&${s}`:""}
 function ErrorCard({message,retry}:{message:string;retry?:()=>void}){return <div className="error-banner"><CircleHelp size={17}/><span>{message}</span>{retry&&<button onClick={retry}>Retry</button>}</div>}
 function pageTitle(id:string){return NAV.find(n=>n.id===id)?.label||"Overview"}
-function pageSubtitle(id:string){return ({dashboard:"A live view of imported traffic readings and road conditions.",traffic:"Compare road, time block, weather, and congestion patterns.",spatio:"Explore source locations by area without implying geographic precision.",explorer:"Inspect the configured MySQL tables, columns, keys, and live row counts.",sqllab:"Run curated advanced SQL against the active dataset import.",optimization:"Compare real MySQL index plans using equivalent filtered results.",views:"Review ordinary views and verify the refreshed daily summary table.",dataflow:"Understand the dataset import, validation, provenance, and limits.",reports:"Preview filtered SQL reports and export them as CSV."} as Record<string,string>)[id]||""}
+function pageSubtitle(id:string){return ({dashboard:"A live view of imported traffic readings and road conditions.",simulation:"Watch fixed and adaptive signal control on the same synthetic traffic demand.",traffic:"Compare road, time block, weather, and congestion patterns.",spatio:"Explore source locations by area without implying geographic precision.",explorer:"Inspect the configured MySQL tables, columns, keys, and live row counts.",sqllab:"Run curated advanced SQL against the active dataset import.",optimization:"Compare real MySQL index plans using equivalent filtered results.",views:"Review ordinary views and verify the refreshed daily summary table.",dataflow:"Understand the dataset import, validation, provenance, and limits.",reports:"Preview filtered SQL reports and export them as CSV."} as Record<string,string>)[id]||""}
