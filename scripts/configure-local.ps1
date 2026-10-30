@@ -11,7 +11,7 @@ if (-not $mysqlPortValue) { $mysqlPortValue = '3306' }
 if ($mysqlPortValue -notmatch '^\d{1,5}$' -or [int]$mysqlPortValue -lt 1 -or [int]$mysqlPortValue -gt 65535) { throw 'Enter a MySQL port from 1 through 65535.' }
 $mysqlUserValue = Read-Host 'MySQL user [root]'
 if (-not $mysqlUserValue) { $mysqlUserValue = 'root' }
-$defaultDatasetPath = 'D:/ASQL/archive/bangalore_traffic_timely_data.csv'
+$defaultDatasetPath = Join-Path $repoPath 'data/raw/bangalore_traffic_timely_data.csv'
 $datasetPathValue = Read-Host "Dataset CSV path [$defaultDatasetPath]"
 if (-not $datasetPathValue) { $datasetPathValue = $defaultDatasetPath }
 $datasetPathValue = $datasetPathValue.Trim()
